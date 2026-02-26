@@ -1,8 +1,8 @@
-FROM node:20-alpine AS frontend-build
+FROM node:20 AS frontend-build
 WORKDIR /src/frontend
 COPY src/frontend/package*.json ./
 COPY src/frontend/.npmrc ./
-RUN npm ci
+RUN npm install
 COPY src/frontend/ ./
 RUN npm run build
 
@@ -18,5 +18,5 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 COPY --from=backend-build /app/publish ./
-COPY --from=frontend-build /src/frontend/dist ./wwwroot
+COPY --from=frontend-build /src/frontend/out ./wwwroot
 ENTRYPOINT ["dotnet", "Gaaunikh.Api.dll"]
