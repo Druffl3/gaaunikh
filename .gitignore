@@ -4,6 +4,9 @@ node_modules/
 
 # Frontend build output
 src/frontend/dist/
+src/frontend/.next/
+src/frontend/out/
+src/frontend/.swc/
 src/frontend/vite.config.js
 src/frontend/vite.config.d.ts
 
