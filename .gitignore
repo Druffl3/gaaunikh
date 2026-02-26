@@ -1,0 +1,15 @@
+# Node
+node_modules/
+*.tsbuildinfo
+
+# Frontend build output
+src/frontend/dist/
+src/frontend/vite.config.js
+src/frontend/vite.config.d.ts
+
+# .NET
+**/bin/
+**/obj/
+
+# Local tooling
+.dotnet/
