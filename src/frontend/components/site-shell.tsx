@@ -52,8 +52,11 @@ export function SiteShell({ heading, description, actionText, children }: SiteSh
         </aside>
       </main>
 
+      <footer>
+        <p>Flavor built for homes, restaurants, and wholesale partners.</p>
+      </footer>
+
       {children}
     </div>
   );
 }
-

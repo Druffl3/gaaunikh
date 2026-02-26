@@ -17,4 +17,18 @@ describe("SiteShell", () => {
     expect(screen.getByRole("link", { name: "Track Order" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contact" })).toBeInTheDocument();
   });
+
+  it("keeps the footer tagline", () => {
+    render(
+      <SiteShell
+        heading="Shop Launching Next"
+        description="Catalog is preparing for release."
+        actionText="Get Notified"
+      />
+    );
+
+    expect(
+      screen.getByText("Flavor built for homes, restaurants, and wholesale partners.")
+    ).toBeInTheDocument();
+  });
 });
