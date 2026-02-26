@@ -13,3 +13,4 @@ src/frontend/vite.config.d.ts
 
 # Local tooling
 .dotnet/
+.worktrees/
