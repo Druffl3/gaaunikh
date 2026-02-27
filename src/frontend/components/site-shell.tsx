@@ -12,10 +12,7 @@ export function SiteShell({ heading, description, actionText, children }: SiteSh
   return (
     <div className="app-shell">
       <header className="topbar">
-        <Link className="brand" href="/">
-          Gaaunikh
-          <span>Masala</span>
-        </Link>
+        <Link className="brand" href="/">Gaaunikh Masala</Link>
         <nav aria-label="Primary">
           <Link className="nav-link" href="/">
             Home
@@ -32,31 +29,26 @@ export function SiteShell({ heading, description, actionText, children }: SiteSh
         </nav>
       </header>
 
-      <main className="hero-wrap">
-        <section className="hero-card">
+      <main className="page">
+        <section className="intro-card">
           <p className="eyebrow">Gaaunikh Masala</p>
           <h1>{heading}</h1>
           <p>{description}</p>
           <button type="button">{actionText}</button>
         </section>
-        <aside className="highlight-card">
-          <h2>Batch Promise</h2>
-          <p>
-            Every pack is sourced, roasted, and milled for flavor retention and everyday consistency.
-          </p>
-          <ul>
-            <li>Single-origin spice selection</li>
-            <li>Fresh grind cycles every week</li>
-            <li>Sealed for aroma protection</li>
-          </ul>
-        </aside>
+        {children ? (
+          <section className="content-panel">{children}</section>
+        ) : (
+          <section className="content-panel">
+            <h2>Batch Promise</h2>
+            <p>Single-origin sourcing. Small-batch grinding. Precision-sealed packing.</p>
+          </section>
+        )}
       </main>
 
       <footer>
-        <p>Flavor built for homes, restaurants, and wholesale partners.</p>
+        <p>Crafted in small batches for kitchens that demand precision.</p>
       </footer>
-
-      {children}
     </div>
   );
 }

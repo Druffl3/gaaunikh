@@ -12,10 +12,15 @@ export const routeContent = {
     actionText: "Discover the Brand"
   },
   shop: {
-    heading: "Shop Launching Next",
+    heading: "Catalog Collection",
     description:
-      "Our product catalog is preparing for release. Expect turmeric, chili, coriander, garam masala, and signature blends.",
-    actionText: "Get Notified"
+      "Browse single-origin spices and house blends with transparent pricing by pack size.",
+    actionText: "Browse Collection"
+  },
+  productDetail: {
+    heading: "Product Details",
+    description: "Review full flavor notes and choose the right weight variant for your kitchen.",
+    actionText: "Back to Catalog"
   },
   trackOrder: {
     heading: "Track Orders in One Place",
