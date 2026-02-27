@@ -1,4 +1,7 @@
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
+
+[assembly: InternalsVisibleTo("Gaaunikh.Api.Tests")]
 
 var builder = WebApplication.CreateBuilder(args);
 
