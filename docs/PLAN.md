@@ -1,18 +1,18 @@
-# Gaaunikh Masala - Master Plan (Plan 1 Modified, Unified App Image)
+# Gaaunikh Masala - Master Plan (Unified App Deployment)
 
-As of February 25, 2026.
+As of February 27, 2026.
 
 ## 1. Goal
-Launch a production-ready online spice powder store for **Gaaunikh Masala** on a single VM using Docker, with reliable ordering, payment capture, and delivery tracking.
+Launch a production-ready online spice powder store for **Gaaunikh Masala** using a unified app deployment model (currently DigitalOcean App Platform), with reliable ordering, payment capture, and delivery tracking.
 
 ## 2. Architecture Baseline
-- Frontend: React + Vite + TypeScript + Tailwind CSS
-- Backend: .NET 8 Web API serving frontend static assets (`wwwroot`) and SPA fallback
+- Frontend: Next.js static export + TypeScript + Tailwind CSS
+- Backend: .NET 8 Web API serving frontend static assets (`wwwroot`) and route fallback
 - Database: PostgreSQL 16
 - Cache: Redis
-- Packaging: single multi-stage Docker build (`frontend build -> copy dist -> backend publish -> one runtime image`)
-- Edge: Nginx (TLS termination and reverse proxy to the single app container)
-- Deployment: Docker Compose on one VM with one app image (+ Postgres, Redis, optional Nginx), manual image deployment
+- Packaging: single multi-stage Docker build (`frontend build -> copy out -> backend publish -> one runtime image`)
+- Edge: DigitalOcean App Platform TLS and ingress (Nginx optional only for self-managed VM deployments)
+- Deployment: DigitalOcean App Platform for production app runtime, Docker Compose for local development
 - Versioning: Git only (no CI/CD pipelines)
 
 ## 3. Product Scope
@@ -30,7 +30,16 @@ Launch a production-ready online spice powder store for **Gaaunikh Masala** on a
 
 ## 5. Environments
 - Local: Docker Compose stack where one app container serves both frontend and API
-- Production: same unified app model with production env vars + TLS + backups
+- Production: DigitalOcean App Platform service using the same unified app image + managed secrets + backups
+
+## 6. Database Hosting Strategy (Budget-First)
+- Keep iteration sequence, but add a mandatory DB decision gate before checkout/order persistence work.
+- Prefer DigitalOcean-managed options first to reduce operational complexity.
+- Budget guidance:
+  - Lowest temporary cost: App Platform Dev DB (`$7/month`) for short-lived/non-production usage.
+  - Best production value: DigitalOcean Managed PostgreSQL (starts around `$15/month`) with backups and managed operations.
+  - Cross-provider option: Neon (free/usage-based tiers) only if strict cost constraints outweigh additional operational complexity.
+- Production recommendation: use DigitalOcean Managed PostgreSQL by the start of Iteration 4.
 
 ---
 
@@ -68,10 +77,25 @@ Launch a production-ready online spice powder store for **Gaaunikh Masala** on a
 ### Done When
 - Cart persists for session and totals are accurate in the unified app deployment
 
+## Iteration 3.5 - Database Foundation and Hosting Decision (2-3 days)
+### Scope
+- Select production database hosting provider and size tier
+- Provision PostgreSQL instance and networking/access controls
+- Wire app configuration (`ConnectionStrings`) via App Platform managed secrets
+- Add initial migration baseline and run migration against non-local DB
+- Validate backup and restore workflow once
+### Value
+- Removes delivery risk before order persistence and payment work
+### Done When
+- Staging/production app can connect to managed PostgreSQL
+- Initial schema migration runs successfully in hosted environment
+- Backup + restore drill is documented with measured RTO/RPO expectations
+- Monthly run-cost estimate is documented and approved
+
 ## Iteration 4 - Checkout and Order Creation (4-5 days)
 ### Scope
 - Customer details and address capture
-- Create order and order lines in database
+- Create order and order lines in the selected managed PostgreSQL database
 ### Value
 - Business can receive structured orders
 ### Done When
@@ -144,5 +168,6 @@ Launch a production-ready online spice powder store for **Gaaunikh Masala** on a
 ## Recommended Execution Pattern
 1. Pick one iteration only.
 2. Implement and verify acceptance criteria.
-3. Deploy manually to production VM.
-4. Capture feedback and start next iteration.
+3. Deploy manually to DigitalOcean App Platform.
+4. For Iteration 3.5, complete provider decision + migration + backup drill before Iteration 4.
+5. Capture feedback and start next iteration.
