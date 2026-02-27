@@ -80,7 +80,7 @@ export function CatalogShop({ loadProducts = fetchCatalogProducts }: CatalogShop
               <p className="product-price">
                 INR {product.lowestPriceInr} - INR {product.highestPriceInr}
               </p>
-              <Link className="product-link" href={`/shop/product?slug=${encodeURIComponent(product.slug)}`}>
+              <Link className="product-link" href={`/shop/product/?slug=${encodeURIComponent(product.slug)}`}>
                 View Details
               </Link>
             </article>

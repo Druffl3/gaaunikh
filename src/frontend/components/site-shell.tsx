@@ -17,13 +17,13 @@ export function SiteShell({ heading, description, actionText, children }: SiteSh
           <Link className="nav-link" href="/">
             Home
           </Link>
-          <Link className="nav-link" href="/shop">
+          <Link className="nav-link" href="/shop/">
             Shop
           </Link>
-          <Link className="nav-link" href="/track-order">
+          <Link className="nav-link" href="/track-order/">
             Track Order
           </Link>
-          <Link className="nav-link" href="/contact">
+          <Link className="nav-link" href="/contact/">
             Contact
           </Link>
         </nav>

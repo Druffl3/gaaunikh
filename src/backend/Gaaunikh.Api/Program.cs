@@ -63,16 +63,22 @@ app.MapFallback(async context =>
         return;
     }
 
-    var indexPath = Path.Combine(app.Environment.WebRootPath, "index.html");
-    if (!File.Exists(indexPath))
+    var resolvedFrontendPath = FrontendStaticPageResolver.Resolve(app.Environment.WebRootPath, context.Request.Path);
+    if (resolvedFrontendPath is null)
     {
-        context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-        await context.Response.WriteAsJsonAsync(new { error = "frontend_not_built" });
-        return;
+        var indexPath = Path.Combine(app.Environment.WebRootPath, "index.html");
+        if (!File.Exists(indexPath))
+        {
+            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+            await context.Response.WriteAsJsonAsync(new { error = "frontend_not_built" });
+            return;
+        }
+
+        resolvedFrontendPath = indexPath;
     }
 
     context.Response.ContentType = "text/html; charset=utf-8";
-    await context.Response.SendFileAsync(indexPath);
+    await context.Response.SendFileAsync(resolvedFrontendPath);
 });
 
 app.Run();
@@ -94,6 +100,54 @@ internal sealed record CatalogProduct(
     string Description,
     IReadOnlyList<CatalogVariant> Variants);
 internal sealed record CatalogVariant(string WeightLabel, decimal PriceInr);
+
+internal static class FrontendStaticPageResolver
+{
+    public static string? Resolve(string webRootPath, PathString requestPath)
+    {
+        if (string.IsNullOrWhiteSpace(webRootPath) || !Directory.Exists(webRootPath))
+        {
+            return null;
+        }
+
+        var requestValue = requestPath.Value ?? "/";
+        var relativePath = requestValue.TrimStart('/');
+
+        if (string.IsNullOrWhiteSpace(relativePath))
+        {
+            return FindExistingFile(webRootPath, ["index.html"]);
+        }
+
+        if (relativePath.Contains("..", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var normalizedRelativePath = relativePath.Replace('/', Path.DirectorySeparatorChar);
+
+        return FindExistingFile(
+            webRootPath,
+            [
+                normalizedRelativePath,
+                $"{normalizedRelativePath}.html",
+                Path.Combine(normalizedRelativePath, "index.html")
+            ]);
+    }
+
+    private static string? FindExistingFile(string webRootPath, IEnumerable<string> relativeCandidates)
+    {
+        foreach (var candidate in relativeCandidates)
+        {
+            var fullPath = Path.Combine(webRootPath, candidate);
+            if (File.Exists(fullPath))
+            {
+                return fullPath;
+            }
+        }
+
+        return null;
+    }
+}
 
 internal static class CatalogSeedData
 {
