@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaaunikh.Api", "src\backend\Gaaunikh.Api\Gaaunikh.Api.csproj", "{46096D7F-171F-413E-9EAD-C1A6B8CAE069}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaaunikh.Api.Tests", "src\backend\Gaaunikh.Api.Tests\Gaaunikh.Api.Tests.csproj", "{10BD45CB-DF3E-4015-8880-8B0937E36A01}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{46096D7F-171F-413E-9EAD-C1A6B8CAE069}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46096D7F-171F-413E-9EAD-C1A6B8CAE069}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46096D7F-171F-413E-9EAD-C1A6B8CAE069}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46096D7F-171F-413E-9EAD-C1A6B8CAE069}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10BD45CB-DF3E-4015-8880-8B0937E36A01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10BD45CB-DF3E-4015-8880-8B0937E36A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10BD45CB-DF3E-4015-8880-8B0937E36A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10BD45CB-DF3E-4015-8880-8B0937E36A01}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
