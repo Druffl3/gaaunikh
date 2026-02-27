@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useOptionalCart } from "./cart-provider";
 import type { CatalogProduct } from "../lib/catalog";
 import { fetchCatalogProduct } from "../lib/catalog";
 
@@ -11,6 +12,7 @@ type CatalogDetailProps = {
 };
 
 export function CatalogDetail({ slug, loadProduct = fetchCatalogProduct }: CatalogDetailProps) {
+  const cart = useOptionalCart();
   const [product, setProduct] = useState<CatalogProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -59,8 +61,24 @@ export function CatalogDetail({ slug, loadProduct = fetchCatalogProduct }: Catal
       <div className="variant-list">
         {product.variants.map((variant) => (
           <div className="variant-row" key={variant.weightLabel}>
-            <span>{variant.weightLabel}</span>
-            <strong>INR {variant.priceInr}</strong>
+            <div>
+              <span>{variant.weightLabel}</span>
+              <strong>INR {variant.priceInr}</strong>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                cart?.addProductVariant({
+                  productSlug: product.slug,
+                  productName: product.name,
+                  weightLabel: variant.weightLabel,
+                  unitPriceInr: variant.priceInr
+                })
+              }
+              aria-label={`Add ${product.name} ${variant.weightLabel} to cart`}
+            >
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>

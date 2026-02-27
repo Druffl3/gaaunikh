@@ -22,6 +22,11 @@ export const routeContent = {
     description: "Review full flavor notes and choose the right weight variant for your kitchen.",
     actionText: "Back to Catalog"
   },
+  cart: {
+    heading: "Your Cart",
+    description: "Review quantities and pricing before moving to checkout in the next iteration.",
+    actionText: "Cart Ready"
+  },
   trackOrder: {
     heading: "Track Orders in One Place",
     description:

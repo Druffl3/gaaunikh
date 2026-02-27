@@ -14,6 +14,7 @@ describe("SiteShell", () => {
 
     expect(screen.getByRole("link", { name: "Home" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Shop" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Cart" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Track Order" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contact" })).toBeInTheDocument();
   });
