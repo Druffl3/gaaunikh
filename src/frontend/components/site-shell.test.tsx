@@ -18,17 +18,16 @@ describe("SiteShell", () => {
     expect(screen.getByRole("link", { name: "Contact" })).toBeInTheDocument();
   });
 
-  it("keeps the footer tagline", () => {
+  it("shows action and updated footer signature", () => {
     render(
       <SiteShell
-        heading="Shop Launching Next"
-        description="Catalog is preparing for release."
-        actionText="Get Notified"
+        heading="Catalog Collection"
+        description="Browse single-origin spices and house blends."
+        actionText="Browse Collection"
       />
     );
 
-    expect(
-      screen.getByText("Flavor built for homes, restaurants, and wholesale partners.")
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Browse Collection" })).toBeInTheDocument();
+    expect(screen.getByText("Crafted in small batches for kitchens that demand precision.")).toBeInTheDocument();
   });
 });
