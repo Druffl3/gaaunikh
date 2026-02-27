@@ -33,3 +33,26 @@ docker compose up --build
   - container build reaches frontend `npm run build`
   - `next` is not found inside the frontend build stage
   - app container smoke tests are blocked until this is resolved
+
+## Iteration 2 Verification Commands
+
+```powershell
+# backend catalog tests (run manually)
+dotnet test src/backend/Gaaunikh.Api.Tests/Gaaunikh.Api.Tests.csproj
+
+# backend compile check (run manually)
+dotnet build src/backend/Gaaunikh.Api/Gaaunikh.Api.csproj
+
+# frontend tests and static export build
+cd src/frontend
+npm test
+npm run build
+```
+
+## Iteration 2 Smoke Checks
+
+- `GET /api/catalog/products` returns seeded product list.
+- `GET /api/catalog/products?search=chili` returns filtered products.
+- `GET /api/catalog/products/kashmiri-chili-powder` returns product details with variants.
+- `GET /shop` renders catalog controls and product cards.
+- `GET /shop/product?slug=kashmiri-chili-powder` renders product detail with variants.
