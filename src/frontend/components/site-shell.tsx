@@ -20,6 +20,9 @@ export function SiteShell({ heading, description, actionText, children }: SiteSh
           <Link className="nav-link" href="/shop/">
             Shop
           </Link>
+          <Link className="nav-link" href="/cart/">
+            Cart
+          </Link>
           <Link className="nav-link" href="/track-order/">
             Track Order
           </Link>

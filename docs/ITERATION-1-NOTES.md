@@ -56,3 +56,28 @@ npm run build
 - `GET /api/catalog/products/kashmiri-chili-powder` returns product details with variants.
 - `GET /shop` renders catalog controls and product cards.
 - `GET /shop/product?slug=kashmiri-chili-powder` renders product detail with variants.
+
+## Iteration 3 Verification Commands
+
+```powershell
+# frontend test and static export build
+cd src/frontend
+npm test
+npm run build
+
+# backend compile check
+cd ..
+dotnet build src/backend/Gaaunikh.Api/Gaaunikh.Api.csproj
+
+# backend API tests (requires NuGet feed access)
+dotnet test src/backend/Gaaunikh.Api.Tests/Gaaunikh.Api.Tests.csproj
+```
+
+## Iteration 3 Smoke Checks
+
+- `GET /shop/product?slug=kashmiri-chili-powder` shows variant-level "Add to Cart" actions.
+- Clicking "Add to Cart" for a variant increases cart quantity and line totals.
+- `GET /cart` renders cart line items with increment/decrement and remove actions.
+- Cart subtotal updates accurately when quantity changes.
+- Removing all lines returns the empty-cart state.
+- Refreshing `/cart` in the same browser session preserves cart contents.
