@@ -8,8 +8,9 @@ RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend-build
 WORKDIR /src
+COPY NuGet.Docker.Config ./NuGet.Config
 COPY src/backend/Gaaunikh.Api/Gaaunikh.Api.csproj src/backend/Gaaunikh.Api/
-RUN dotnet restore src/backend/Gaaunikh.Api/Gaaunikh.Api.csproj
+RUN dotnet restore src/backend/Gaaunikh.Api/Gaaunikh.Api.csproj --configfile /src/NuGet.Config
 COPY src/backend/Gaaunikh.Api/ src/backend/Gaaunikh.Api/
 RUN dotnet publish src/backend/Gaaunikh.Api/Gaaunikh.Api.csproj -c Release -o /app/publish /p:UseAppHost=false
 
