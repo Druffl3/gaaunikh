@@ -1,0 +1,97 @@
+using Gaaunikh.Api.Data;
+using Gaaunikh.Api.Data.Entities;
+
+namespace Gaaunikh.Api.Features.Orders;
+
+public sealed class OrderService
+{
+    private readonly CommerceDbContext _dbContext;
+
+    public OrderService(CommerceDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    public async Task<CheckoutResponse> CreateAsync(CheckoutRequest request, CancellationToken cancellationToken)
+    {
+        if (request.Lines.Count == 0)
+        {
+            throw new CheckoutValidationException("Checkout requires at least one cart line.");
+        }
+
+        var orderLines = new List<OrderLine>();
+        decimal subtotalInr = 0;
+
+        foreach (var line in request.Lines)
+        {
+            if (line.Quantity <= 0)
+            {
+                throw new CheckoutValidationException("Checkout line quantity must be at least 1.");
+            }
+
+            var product = CatalogSeedData.Products.FirstOrDefault(item =>
+                item.Slug.Equals(line.ProductSlug, StringComparison.OrdinalIgnoreCase));
+
+            if (product is null)
+            {
+                throw new CheckoutValidationException($"Unknown product '{line.ProductSlug}'.");
+            }
+
+            var variant = product.Variants.FirstOrDefault(item =>
+                item.WeightLabel.Equals(line.WeightLabel, StringComparison.OrdinalIgnoreCase));
+
+            if (variant is null)
+            {
+                throw new CheckoutValidationException($"Unknown variant '{line.WeightLabel}' for product '{line.ProductSlug}'.");
+            }
+
+            var lineTotalInr = variant.PriceInr * line.Quantity;
+            subtotalInr += lineTotalInr;
+
+            orderLines.Add(new OrderLine
+            {
+                Id = Guid.NewGuid(),
+                ProductSlug = product.Slug,
+                ProductName = product.Name,
+                WeightLabel = variant.WeightLabel,
+                UnitPriceInr = variant.PriceInr,
+                Quantity = line.Quantity,
+                LineTotalInr = lineTotalInr
+            });
+        }
+
+        var timestamp = DateTimeOffset.UtcNow;
+        var order = new Order
+        {
+            Id = Guid.NewGuid(),
+            Reference = $"ORD-{Guid.NewGuid():N}"[..14].ToUpperInvariant(),
+            Status = "PendingPayment",
+            CustomerName = request.CustomerName.Trim(),
+            CustomerEmail = request.CustomerEmail.Trim(),
+            CustomerPhone = request.CustomerPhone.Trim(),
+            ShippingAddressLine1 = request.ShippingAddress.Line1.Trim(),
+            ShippingAddressLine2 = request.ShippingAddress.Line2?.Trim(),
+            ShippingCity = request.ShippingAddress.City.Trim(),
+            ShippingState = request.ShippingAddress.State.Trim(),
+            ShippingPostalCode = request.ShippingAddress.PostalCode.Trim(),
+            ShippingCountryCode = request.ShippingAddress.CountryCode.Trim().ToUpperInvariant(),
+            SubtotalInr = subtotalInr,
+            TotalInr = subtotalInr,
+            CreatedUtc = timestamp,
+            Lines = orderLines
+        };
+
+        _dbContext.Orders.Add(order);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return new CheckoutResponse(order.Id, order.Reference, order.Status, order.SubtotalInr, order.TotalInr);
+    }
+}
+
+public sealed class CheckoutValidationException : Exception
+{
+    public CheckoutValidationException(string message)
+        : base(message)
+    {
+    }
+}

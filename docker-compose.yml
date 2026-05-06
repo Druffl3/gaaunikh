@@ -8,10 +8,12 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CommerceDatabase: Host=postgres;Port=5432;Database=gaaunikh;Username=gaaunikh;Password=gaaunikh
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres:16-alpine
-    profiles: ["infra"]
     environment:
       POSTGRES_DB: gaaunikh
       POSTGRES_USER: gaaunikh

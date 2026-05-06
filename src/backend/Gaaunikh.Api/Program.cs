@@ -1,9 +1,19 @@
+using Gaaunikh.Api.Configuration;
+using Gaaunikh.Api.Data;
+using Gaaunikh.Api.Features.Orders;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 [assembly: InternalsVisibleTo("Gaaunikh.Api.Tests")]
 
 var builder = WebApplication.CreateBuilder(args);
+var commerceConnectionString = builder.Configuration.GetConnectionString("CommerceDatabase")
+    ?? throw new InvalidOperationException("Missing CommerceDatabase connection string.");
+
+builder.Services.Configure<CommerceOptions>(builder.Configuration);
+builder.Services.AddDbContext<CommerceDbContext>(options => options.UseNpgsql(commerceConnectionString));
+builder.Services.AddScoped<OrderService>();
 
 var app = builder.Build();
 var catalogProducts = CatalogSeedData.Products;
@@ -56,6 +66,19 @@ app.MapGet("/api/catalog/products/{slug}", (string slug) =>
     }
 
     return Results.Ok(product);
+});
+
+app.MapPost("/api/orders/checkout", async (CheckoutRequest request, OrderService orderService, CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var response = await orderService.CreateAsync(request, cancellationToken);
+        return Results.Ok(response);
+    }
+    catch (CheckoutValidationException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
 });
 
 app.MapFallback(async context =>

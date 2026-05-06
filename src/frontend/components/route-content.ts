@@ -24,8 +24,13 @@ export const routeContent = {
   },
   cart: {
     heading: "Your Cart",
-    description: "Review quantities and pricing before moving to checkout in the next iteration.",
-    actionText: "Cart Ready"
+    description: "Review quantities and pricing, then continue into checkout when your cart looks right.",
+    actionText: "Review Order"
+  },
+  checkout: {
+    heading: "Checkout",
+    description: "Enter customer and delivery details to persist your order before the payment step.",
+    actionText: "Place Your Order"
   },
   trackOrder: {
     heading: "Track Orders in One Place",
