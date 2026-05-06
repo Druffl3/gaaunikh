@@ -6,6 +6,7 @@ import HomePage from "./page";
 import ShopPage from "./shop/page";
 import ShopProductPage from "./shop/product/page";
 import CartPage from "./cart/page";
+import CheckoutPage from "./checkout/page";
 import { CartProvider } from "../components/cart-provider";
 
 function renderWithProviders(content: ReactElement) {
@@ -39,5 +40,13 @@ describe("Next routes", () => {
     renderWithProviders(<CartPage />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Your Cart");
     expect(screen.getByText("Your cart is empty. Add products from the catalog.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Proceed to Checkout" })).toBeInTheDocument();
+  });
+
+  it("renders checkout route shell", () => {
+    renderWithProviders(<CheckoutPage />);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Checkout");
+    expect(screen.getByLabelText("Full Name")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Place Order" })).toBeDisabled();
   });
 });

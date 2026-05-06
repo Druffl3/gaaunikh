@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "./cart-provider";
 
 function formatTwoDecimalAmount(amount: number): string {
@@ -10,7 +11,12 @@ export function CartPanel() {
   const { lines, summary, increaseQuantity, decreaseQuantity, removeLine } = useCart();
 
   if (lines.length === 0) {
-    return <p className="catalog-state">Your cart is empty. Add products from the catalog.</p>;
+    return (
+      <section className="cart-panel" aria-label="Cart">
+        <p className="catalog-state">Your cart is empty. Add products from the catalog.</p>
+        <Link href="/checkout/">Proceed to Checkout</Link>
+      </section>
+    );
   }
 
   return (
@@ -60,6 +66,7 @@ export function CartPanel() {
         <p>Unique items: {summary.uniqueItems}</p>
         <p>Total quantity: {summary.totalQuantity}</p>
         <p>Subtotal: INR {formatTwoDecimalAmount(summary.subtotalInr)}</p>
+        <Link href="/checkout/">Proceed to Checkout</Link>
       </section>
     </section>
   );
