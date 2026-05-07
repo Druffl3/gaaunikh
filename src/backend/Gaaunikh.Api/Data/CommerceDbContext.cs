@@ -43,6 +43,7 @@ public sealed class CommerceDbContext(DbContextOptions<CommerceDbContext> option
         {
             entity.ToTable("order_lines");
             entity.HasKey(line => line.Id);
+            entity.Property(line => line.Sku).HasMaxLength(128);
             entity.Property(line => line.ProductSlug).HasMaxLength(200);
             entity.Property(line => line.ProductName).HasMaxLength(200);
             entity.Property(line => line.WeightLabel).HasMaxLength(64);
@@ -92,7 +93,15 @@ public sealed class CommerceDbContext(DbContextOptions<CommerceDbContext> option
             entity.ToTable("inventory_items");
             entity.HasKey(item => item.Id);
             entity.HasIndex(item => item.Sku).IsUnique();
+            entity.HasIndex(item => new { item.ProductSlug, item.WeightLabel }).IsUnique();
             entity.Property(item => item.Sku).HasMaxLength(128);
+            entity.Property(item => item.ProductSlug).HasMaxLength(200);
+            entity.Property(item => item.ProductName).HasMaxLength(200);
+            entity.Property(item => item.Category).HasMaxLength(120);
+            entity.Property(item => item.ShortDescription).HasMaxLength(400);
+            entity.Property(item => item.Description).HasColumnType("text");
+            entity.Property(item => item.WeightLabel).HasMaxLength(64);
+            entity.Property(item => item.UnitPriceInr).HasPrecision(18, 2);
         });
 
         modelBuilder.Entity<InventoryMovement>(entity =>

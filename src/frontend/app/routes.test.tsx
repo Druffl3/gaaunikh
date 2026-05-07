@@ -7,6 +7,7 @@ import ShopPage from "./shop/page";
 import ShopProductPage from "./shop/product/page";
 import CartPage from "./cart/page";
 import CheckoutPage from "./checkout/page";
+import AdminInventoryPage from "./admin/inventory/page";
 import { CartProvider } from "../components/cart-provider";
 
 function renderWithProviders(content: ReactElement) {
@@ -48,5 +49,15 @@ describe("Next routes", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Checkout");
     expect(screen.getByLabelText("Full Name")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Place Order" })).toBeDisabled();
+  });
+
+  it("renders admin inventory route shell", async () => {
+    renderWithProviders(<AdminInventoryPage />);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Inventory Control");
+    expect(screen.getByRole("button", { name: "Create Inventory Item" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Apply Adjustment" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("No inventory items created yet.")).toBeInTheDocument();
+    });
   });
 });

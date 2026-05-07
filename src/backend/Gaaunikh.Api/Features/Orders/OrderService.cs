@@ -1,5 +1,6 @@
 using Gaaunikh.Api.Data;
 using Gaaunikh.Api.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gaaunikh.Api.Features.Orders;
 
@@ -29,32 +30,31 @@ public sealed class OrderService
                 throw new CheckoutValidationException("Checkout line quantity must be at least 1.");
             }
 
-            var product = CatalogSeedData.Products.FirstOrDefault(item =>
-                item.Slug.Equals(line.ProductSlug, StringComparison.OrdinalIgnoreCase));
+            var normalizedProductSlug = line.ProductSlug.Trim().ToLowerInvariant();
+            var normalizedWeightLabel = line.WeightLabel.Trim();
+            var inventoryItem = await _dbContext.InventoryItems.SingleOrDefaultAsync(
+                item =>
+                    item.IsActive &&
+                    item.ProductSlug == normalizedProductSlug &&
+                    item.WeightLabel == normalizedWeightLabel,
+                cancellationToken);
 
-            if (product is null)
+            if (inventoryItem is null)
             {
                 throw new CheckoutValidationException($"Unknown product '{line.ProductSlug}'.");
             }
 
-            var variant = product.Variants.FirstOrDefault(item =>
-                item.WeightLabel.Equals(line.WeightLabel, StringComparison.OrdinalIgnoreCase));
-
-            if (variant is null)
-            {
-                throw new CheckoutValidationException($"Unknown variant '{line.WeightLabel}' for product '{line.ProductSlug}'.");
-            }
-
-            var lineTotalInr = variant.PriceInr * line.Quantity;
+            var lineTotalInr = inventoryItem.UnitPriceInr * line.Quantity;
             subtotalInr += lineTotalInr;
 
             orderLines.Add(new OrderLine
             {
                 Id = Guid.NewGuid(),
-                ProductSlug = product.Slug,
-                ProductName = product.Name,
-                WeightLabel = variant.WeightLabel,
-                UnitPriceInr = variant.PriceInr,
+                Sku = inventoryItem.Sku,
+                ProductSlug = inventoryItem.ProductSlug,
+                ProductName = inventoryItem.ProductName,
+                WeightLabel = inventoryItem.WeightLabel,
+                UnitPriceInr = inventoryItem.UnitPriceInr,
                 Quantity = line.Quantity,
                 LineTotalInr = lineTotalInr
             });

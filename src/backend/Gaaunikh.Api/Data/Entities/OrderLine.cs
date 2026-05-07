@@ -5,6 +5,7 @@ public sealed class OrderLine
     public Guid Id { get; set; }
     public Guid OrderId { get; set; }
     public Order? Order { get; set; }
+    public string Sku { get; set; } = string.Empty;
     public string ProductSlug { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;
     public string WeightLabel { get; set; } = string.Empty;

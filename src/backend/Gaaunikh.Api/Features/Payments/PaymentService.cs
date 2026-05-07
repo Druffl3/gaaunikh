@@ -4,6 +4,7 @@ using System.Text.Json;
 using Gaaunikh.Api.Configuration;
 using Gaaunikh.Api.Data;
 using Gaaunikh.Api.Data.Entities;
+using Gaaunikh.Api.Features.Inventory;
 using Gaaunikh.Api.Infrastructure.Payments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,15 +14,18 @@ namespace Gaaunikh.Api.Features.Payments;
 public sealed class PaymentService
 {
     private readonly CommerceDbContext _dbContext;
+    private readonly InventoryService _inventoryService;
     private readonly IRazorpayGateway _razorpayGateway;
     private readonly PaymentsOptions _paymentsOptions;
 
     public PaymentService(
         CommerceDbContext dbContext,
+        InventoryService inventoryService,
         IRazorpayGateway razorpayGateway,
         IOptions<CommerceOptions> options)
     {
         _dbContext = dbContext;
+        _inventoryService = inventoryService;
         _razorpayGateway = razorpayGateway;
         _paymentsOptions = options.Value.Payments;
     }
@@ -198,6 +202,7 @@ public sealed class PaymentService
                 if (paymentAttempt.Order is not null)
                 {
                     paymentAttempt.Order.Status = "Paid";
+                    await _inventoryService.ReservePaidOrderAsync(paymentAttempt.Order.Id, cancellationToken);
                 }
             }
         }

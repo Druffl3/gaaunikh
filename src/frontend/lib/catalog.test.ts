@@ -2,7 +2,7 @@ import { describe, expect, it, jest } from "@jest/globals";
 import { fetchCatalogProduct, fetchCatalogProducts } from "./catalog";
 
 describe("catalog api fallback", () => {
-  it("returns dummy catalog list when api endpoint is unavailable", async () => {
+  it("returns an empty catalog list when api endpoint is unavailable", async () => {
     const fetchMock = jest.fn(async () => ({
       ok: false,
       status: 404,
@@ -16,11 +16,10 @@ describe("catalog api fallback", () => {
     });
 
     const result = await fetchCatalogProducts({ search: "", category: "All" });
-    expect(result.length).toBeGreaterThan(0);
-    expect(result.some((item) => item.slug === "kashmiri-chili-powder")).toBe(true);
+    expect(result).toEqual([]);
   });
 
-  it("returns dummy catalog detail when api endpoint is unavailable", async () => {
+  it("returns null product detail when api endpoint is unavailable", async () => {
     const fetchMock = jest.fn(async () => ({
       ok: false,
       status: 404,
@@ -34,7 +33,6 @@ describe("catalog api fallback", () => {
     });
 
     const result = await fetchCatalogProduct("kashmiri-chili-powder");
-    expect(result).not.toBeNull();
-    expect(result?.name).toBe("Kashmiri Chili Powder");
+    expect(result).toBeNull();
   });
 });

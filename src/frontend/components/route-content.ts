@@ -32,6 +32,12 @@ export const routeContent = {
     description: "Enter customer and delivery details to persist your order before the payment step.",
     actionText: "Place Your Order"
   },
+  adminInventory: {
+    heading: "Inventory Control",
+    description:
+      "Create sellable SKU variants, review stock ledgers, and apply manual adjustments with an auditable movement trail.",
+    actionText: "Admin Inventory"
+  },
   trackOrder: {
     heading: "Track Orders in One Place",
     description:
