@@ -24,6 +24,38 @@ var app = builder.Build();
 var catalogProducts = CatalogSeedData.Products;
 var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<CommerceDbContext>();
+    var logger = scope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("DatabaseInitialization");
+
+    try
+    {
+        if (dbContext.Database.IsRelational())
+        {
+            var migrations = dbContext.Database.GetMigrations();
+            if (migrations.Any())
+            {
+                await dbContext.Database.MigrateAsync();
+            }
+            else
+            {
+                await dbContext.Database.EnsureCreatedAsync();
+            }
+        }
+        else
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Skipping startup database initialization.");
+    }
+}
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 

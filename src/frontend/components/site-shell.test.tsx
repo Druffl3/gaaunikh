@@ -1,6 +1,28 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "@jest/globals";
 import { SiteShell } from "./site-shell";
+import { CartProvider, useCart } from "./cart-provider";
+
+function CartSeedAction() {
+  const { addProductVariant } = useCart();
+
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        addProductVariant({
+          productSlug: "kashmiri-chili-powder",
+          productName: "Kashmiri Chili Powder",
+          weightLabel: "100g",
+          unitPriceInr: 95
+        })
+      }
+    >
+      Seed Cart
+    </button>
+  );
+}
 
 describe("SiteShell", () => {
   it("renders primary navigation links", () => {
@@ -30,5 +52,26 @@ describe("SiteShell", () => {
 
     expect(screen.getByRole("button", { name: "Browse Collection" })).toBeInTheDocument();
     expect(screen.getByText("Crafted in small batches for kitchens that demand precision.")).toBeInTheDocument();
+  });
+
+  it("shows a cart quantity badge when items are in the cart", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <CartProvider storageKey="test-site-shell-cart-badge">
+        <CartSeedAction />
+        <SiteShell
+          heading="Catalog Collection"
+          description="Browse single-origin spices and house blends."
+          actionText="Browse Collection"
+        />
+      </CartProvider>
+    );
+
+    await user.click(screen.getByRole("button", { name: "Seed Cart" }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("1 item in cart")).toBeInTheDocument();
+    });
   });
 });

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useOptionalCart } from "./cart-provider";
 
 type SiteShellProps = {
   heading: string;
@@ -9,6 +12,9 @@ type SiteShellProps = {
 };
 
 export function SiteShell({ heading, description, actionText, children }: SiteShellProps) {
+  const cart = useOptionalCart();
+  const cartQuantity = cart?.summary.totalQuantity ?? 0;
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -20,8 +26,13 @@ export function SiteShell({ heading, description, actionText, children }: SiteSh
           <Link className="nav-link" href="/shop/">
             Shop
           </Link>
-          <Link className="nav-link" href="/cart/">
-            Cart
+          <Link className="nav-link nav-link-cart" href="/cart/">
+            <span>Cart</span>
+            {cartQuantity > 0 ? (
+              <span className="nav-badge" aria-label={`${cartQuantity} item${cartQuantity === 1 ? "" : "s"} in cart`}>
+                {cartQuantity}
+              </span>
+            ) : null}
           </Link>
           <Link className="nav-link" href="/track-order/">
             Track Order

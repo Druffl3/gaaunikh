@@ -7,13 +7,14 @@ import { PaymentStep } from "../../components/payment-step";
 import { routeContent } from "../../components/route-content";
 import { SiteShell } from "../../components/site-shell";
 import { useCart } from "../../components/cart-provider";
+import { resolveApiUrl } from "../../lib/api";
 
 export default function CheckoutPage() {
   const { lines } = useCart();
   const [order, setOrder] = useState<CheckoutResult | null>(null);
 
   async function submitCheckout(request: CheckoutSubmission): Promise<CheckoutResult> {
-    const response = await fetch("/api/orders/checkout", {
+    const response = await fetch(resolveApiUrl("/api/orders/checkout"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

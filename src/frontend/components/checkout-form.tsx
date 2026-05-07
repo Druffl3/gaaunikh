@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import type { CartLine } from "../lib/cart";
+import { resolveApiUrl } from "../lib/api";
 
 export type CheckoutSubmission = {
   customerName: string;
@@ -78,7 +79,7 @@ function hasRequiredFields(form: FormState): boolean {
 }
 
 async function postCheckout(request: CheckoutSubmission): Promise<CheckoutResult> {
-  const response = await fetch("/api/orders/checkout", {
+  const response = await fetch(resolveApiUrl("/api/orders/checkout"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

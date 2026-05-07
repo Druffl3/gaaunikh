@@ -74,6 +74,7 @@ describe("CatalogDetail", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Cart quantity: 1")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Go to Cart" })).toBeInTheDocument();
     });
   });
 });

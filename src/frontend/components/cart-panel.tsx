@@ -14,7 +14,9 @@ export function CartPanel() {
     return (
       <section className="cart-panel" aria-label="Cart">
         <p className="catalog-state">Your cart is empty. Add products from the catalog.</p>
-        <Link href="/checkout/">Proceed to Checkout</Link>
+        <Link className="button-link" href="/checkout/">
+          Proceed to Checkout
+        </Link>
       </section>
     );
   }
@@ -66,7 +68,9 @@ export function CartPanel() {
         <p>Unique items: {summary.uniqueItems}</p>
         <p>Total quantity: {summary.totalQuantity}</p>
         <p>Subtotal: INR {formatTwoDecimalAmount(summary.subtotalInr)}</p>
-        <Link href="/checkout/">Proceed to Checkout</Link>
+        <Link className="button-link" href="/checkout/">
+          Proceed to Checkout
+        </Link>
       </section>
     </section>
   );

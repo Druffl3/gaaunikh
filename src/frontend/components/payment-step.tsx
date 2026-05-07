@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CheckoutResult } from "./checkout-form";
+import { resolveApiUrl } from "../lib/api";
 
 export type CreatePaymentResult = {
   provider: string;
@@ -17,7 +18,7 @@ type PaymentStepProps = {
 };
 
 async function postCreatePayment(orderId: string): Promise<CreatePaymentResult> {
-  const response = await fetch("/api/payments/create-payment", {
+  const response = await fetch(resolveApiUrl("/api/payments/create-payment"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
