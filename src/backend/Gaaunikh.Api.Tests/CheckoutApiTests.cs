@@ -1,4 +1,5 @@
 using Gaaunikh.Api.Data;
+using Gaaunikh.Api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -12,6 +13,7 @@ public sealed class CheckoutApiTests
     {
         using var factory = CreateFactory();
         using var client = factory.CreateClient();
+        await SeedInventoryItemAsync(factory.Services);
 
         var response = await client.PostAsJsonAsync("/api/orders/checkout", new
         {
@@ -31,8 +33,8 @@ public sealed class CheckoutApiTests
             {
                 new
                 {
-                    productSlug = "kashmiri-chili-powder",
-                    weightLabel = "100g",
+                    productSlug = "smoked-paprika",
+                    weightLabel = "200g",
                     unitPriceInr = 1m,
                     quantity = 2
                 }
@@ -43,8 +45,8 @@ public sealed class CheckoutApiTests
         var payload = await response.Content.ReadFromJsonAsync<CheckoutApiResponse>();
         Assert.NotNull(payload);
         Assert.Equal("PendingPayment", payload!.Status);
-        Assert.Equal(190m, payload.SubtotalInr);
-        Assert.Equal(190m, payload.TotalInr);
+        Assert.Equal(240m, payload.SubtotalInr);
+        Assert.Equal(240m, payload.TotalInr);
 
         using var scope = factory.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<CommerceDbContext>();
@@ -54,11 +56,11 @@ public sealed class CheckoutApiTests
         Assert.Equal("Asha Raman", order.CustomerName);
         Assert.Equal("asha@example.com", order.CustomerEmail);
         Assert.Equal("PendingPayment", order.Status);
-        Assert.Equal(190m, order.TotalInr);
-        Assert.Equal("Kashmiri Chili Powder", orderLine.ProductName);
-        Assert.Equal(95m, orderLine.UnitPriceInr);
+        Assert.Equal(240m, order.TotalInr);
+        Assert.Equal("Smoked Paprika", orderLine.ProductName);
+        Assert.Equal(120m, orderLine.UnitPriceInr);
         Assert.Equal(2, orderLine.Quantity);
-        Assert.Equal(190m, orderLine.LineTotalInr);
+        Assert.Equal(240m, orderLine.LineTotalInr);
     }
 
     private static WebApplicationFactory<Program> CreateFactory()
@@ -74,6 +76,31 @@ public sealed class CheckoutApiTests
                 services.AddDbContext<CommerceDbContext>(options => options.UseInMemoryDatabase(databaseName));
             });
         });
+    }
+
+    private static async Task SeedInventoryItemAsync(IServiceProvider services)
+    {
+        using var scope = services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<CommerceDbContext>();
+
+        dbContext.InventoryItems.Add(new InventoryItem
+        {
+            Id = Guid.NewGuid(),
+            Sku = "SPICE-SMOKED-PAPRIKA-200G",
+            ProductSlug = "smoked-paprika",
+            ProductName = "Smoked Paprika",
+            Category = "Single Spice",
+            ShortDescription = "Deep red smoked chili powder.",
+            Description = "Bold smoked paprika for marinades and finishing spice blends.",
+            WeightLabel = "200g",
+            UnitPriceInr = 120m,
+            ReorderThreshold = 3,
+            IsActive = true,
+            CreatedUtc = DateTimeOffset.UtcNow,
+            UpdatedUtc = DateTimeOffset.UtcNow
+        });
+
+        await dbContext.SaveChangesAsync();
     }
 
     private sealed record CheckoutApiResponse(

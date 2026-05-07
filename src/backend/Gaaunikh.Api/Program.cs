@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Gaaunikh.Api.Configuration;
 using Gaaunikh.Api.Data;
+using Gaaunikh.Api.Features.Inventory;
 using Gaaunikh.Api.Features.Orders;
 using Gaaunikh.Api.Features.Payments;
 using Gaaunikh.Api.Infrastructure.Payments;
@@ -16,12 +17,12 @@ var commerceConnectionString = builder.Configuration.GetConnectionString("Commer
 
 builder.Services.Configure<CommerceOptions>(builder.Configuration);
 builder.Services.AddDbContext<CommerceDbContext>(options => options.UseNpgsql(commerceConnectionString));
+builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<IRazorpayGateway, RazorpayGateway>();
 
 var app = builder.Build();
-var catalogProducts = CatalogSeedData.Products;
 var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
 await using (var scope = app.Services.CreateAsyncScope())
@@ -33,7 +34,13 @@ await using (var scope = app.Services.CreateAsyncScope())
 
     try
     {
-        if (dbContext.Database.IsRelational())
+        var providerName = dbContext.Database.ProviderName ?? string.Empty;
+
+        if (providerName.Contains("Sqlite", StringComparison.OrdinalIgnoreCase))
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+        else if (dbContext.Database.IsRelational())
         {
             var migrations = dbContext.Database.GetMigrations();
             if (migrations.Any())
@@ -64,39 +71,16 @@ app.MapGet("/api/health", () =>
     return Results.Ok(new HealthResponse("healthy", DateTimeOffset.UtcNow));
 });
 
-app.MapGet("/api/catalog/products", (string? search, string? category) =>
+app.MapGet("/api/catalog/products", async (string? search, string? category, InventoryService inventoryService, CancellationToken cancellationToken) =>
 {
-    IEnumerable<CatalogProduct> query = catalogProducts;
-
-    if (!string.IsNullOrWhiteSpace(search))
-    {
-        query = query.Where(product =>
-            product.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
-    }
-
-    if (!string.IsNullOrWhiteSpace(category))
-    {
-        query = query.Where(product =>
-            product.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
-    }
-
-    var items = query
-        .Select(product => new CatalogProductListItem(
-            product.Slug,
-            product.Name,
-            product.Category,
-            product.ShortDescription,
-            product.Variants.Min(variant => variant.PriceInr),
-            product.Variants.Max(variant => variant.PriceInr)))
-        .ToArray();
+    var items = await inventoryService.GetCatalogProductsAsync(search, category, cancellationToken);
 
     return Results.Ok(new CatalogProductsResponse(items));
 });
 
-app.MapGet("/api/catalog/products/{slug}", (string slug) =>
+app.MapGet("/api/catalog/products/{slug}", async (string slug, InventoryService inventoryService, CancellationToken cancellationToken) =>
 {
-    var product = catalogProducts.FirstOrDefault(item =>
-        item.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase));
+    var product = await inventoryService.GetCatalogProductAsync(slug, cancellationToken);
 
     if (product is null)
     {
@@ -176,6 +160,49 @@ app.MapPost("/api/payments/razorpay/webhook", async (HttpRequest request, Paymen
     }
 });
 
+app.MapGet("/api/admin/inventory/summary", async (
+    string? search,
+    string? category,
+    string? sku,
+    InventoryService inventoryService,
+    CancellationToken cancellationToken) =>
+{
+    var items = await inventoryService.GetSummaryAsync(search, category, sku, cancellationToken);
+    return Results.Ok(new InventorySummaryResponse(items));
+});
+
+app.MapPost("/api/admin/inventory/items", async (
+    CreateInventoryItemRequest request,
+    InventoryService inventoryService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var item = await inventoryService.CreateItemAsync(request, cancellationToken);
+        return Results.Ok(item);
+    }
+    catch (InventoryValidationException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+});
+
+app.MapPost("/api/admin/inventory/adjustments", async (
+    StockAdjustmentRequest request,
+    InventoryService inventoryService,
+    CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var item = await inventoryService.AdjustStockAsync(request, cancellationToken);
+        return Results.Ok(item);
+    }
+    catch (InventoryValidationException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+});
+
 app.MapFallback(async context =>
 {
     if (context.Request.Path.StartsWithSegments("/api"))
@@ -205,22 +232,7 @@ app.MapFallback(async context =>
 app.Run();
 
 internal sealed record HealthResponse(string Status, DateTimeOffset TimestampUtc);
-internal sealed record CatalogProductsResponse(IReadOnlyList<CatalogProductListItem> Products);
-internal sealed record CatalogProductListItem(
-    string Slug,
-    string Name,
-    string Category,
-    string ShortDescription,
-    decimal LowestPriceInr,
-    decimal HighestPriceInr);
-internal sealed record CatalogProduct(
-    string Slug,
-    string Name,
-    string Category,
-    string ShortDescription,
-    string Description,
-    IReadOnlyList<CatalogVariant> Variants);
-internal sealed record CatalogVariant(string WeightLabel, decimal PriceInr);
+internal sealed record CatalogProductsResponse(IReadOnlyList<CatalogProductListItemDto> Products);
 
 internal static class FrontendStaticPageResolver
 {
@@ -268,68 +280,6 @@ internal static class FrontendStaticPageResolver
 
         return null;
     }
-}
-
-internal static class CatalogSeedData
-{
-    public static IReadOnlyList<CatalogProduct> Products { get; } =
-    [
-        new(
-            "kashmiri-chili-powder",
-            "Kashmiri Chili Powder",
-            "Single Spice",
-            "Bright color, balanced warmth, and layered aroma.",
-            "Crafted from low-heat Kashmiri chilies to deliver color-first flavor for curries, tandoori marinades, and finishing oils.",
-            [
-                new("100g", 95m),
-                new("250g", 210m),
-                new("500g", 395m)
-            ]),
-        new(
-            "haldi-gold-turmeric",
-            "Haldi Gold Turmeric",
-            "Single Spice",
-            "Fresh turmeric brightness for daily cooking.",
-            "Stone-milled turmeric root with deep golden tone and warm earthy finish for dals, sabzis, and wellness recipes.",
-            [
-                new("100g", 80m),
-                new("250g", 175m),
-                new("500g", 330m)
-            ]),
-        new(
-            "roasted-coriander-powder",
-            "Roasted Coriander Powder",
-            "Single Spice",
-            "Citrus-lifted coriander with roasted depth.",
-            "Slow-roasted coriander seeds milled in small batches for bright, nutty character in gravies, chutneys, and dry rubs.",
-            [
-                new("100g", 72m),
-                new("250g", 158m),
-                new("500g", 295m)
-            ]),
-        new(
-            "signature-garam-masala",
-            "Signature Garam Masala",
-            "House Blend",
-            "Warm whole-spice blend for finishing dishes.",
-            "A balanced house blend of cardamom, clove, cinnamon, and pepper designed to lift aroma in North and South Indian dishes.",
-            [
-                new("100g", 120m),
-                new("250g", 265m),
-                new("500g", 510m)
-            ]),
-        new(
-            "coastal-kitchen-blend",
-            "Coastal Kitchen Blend",
-            "House Blend",
-            "Peppery-red blend for seafood and vegetable fries.",
-            "A robust red masala with black pepper, chili, garlic, and curry leaf notes suitable for coastal gravies and pan-seared vegetables.",
-            [
-                new("100g", 130m),
-                new("250g", 288m),
-                new("500g", 548m)
-            ])
-    ];
 }
 
 public partial class Program;

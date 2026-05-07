@@ -9,13 +9,12 @@ type CatalogShopProps = {
   loadProducts?: (filters: CatalogFilters) => Promise<CatalogProductListItem[]>;
 };
 
-const categories = ["All", "Single Spice", "House Blend"] as const;
-
 export function CatalogShop({ loadProducts = fetchCatalogProducts }: CatalogShopProps) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [products, setProducts] = useState<CatalogProductListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const categories = Array.from(new Set(["All", category, ...products.map((product) => product.category)]));
 
   useEffect(() => {
     let cancelled = false;
