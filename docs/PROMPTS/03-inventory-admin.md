@@ -16,6 +16,7 @@ Requirements:
 - Add the admin inventory page and supporting endpoints, but avoid broader admin scope beyond what this task needs.
 - Use tests first and run the planned verification commands before completion.
 - Create a commit for Session 3 only after tests pass.
+- Remove the hardcoded Spice items
 
 Deliverables expected from this session:
 - inventory ledger domain
@@ -28,3 +29,4 @@ When you finish, summarize:
 - what verification passed
 - the commit hash
 - any data-model decisions Session 4 must respect
+- No hardcoded items only inventory created items to be used
