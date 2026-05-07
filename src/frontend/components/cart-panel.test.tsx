@@ -34,6 +34,7 @@ describe("CartPanel", () => {
     );
 
     expect(screen.getByText("Your cart is empty. Add products from the catalog.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Proceed to Checkout" })).toHaveClass("button-link");
   });
 
   it("updates totals when quantity is changed and line removed", async () => {

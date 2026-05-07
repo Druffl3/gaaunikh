@@ -68,6 +68,9 @@ nav {
 }
 
 .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.86);
   padding: 0.5rem 0.8rem;
@@ -76,6 +79,25 @@ nav {
   font-weight: 600;
   letter-spacing: 0.03em;
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-link-cart {
+  min-width: 5.5rem;
+  justify-content: center;
+}
+
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.45rem;
+  padding: 0.05rem 0.38rem;
+  border-radius: 999px;
+  background: var(--white-bright);
+  color: var(--ruby);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .nav-link:hover {
@@ -152,6 +174,32 @@ button {
 
 button:hover {
   background: rgba(92, 12, 12, 0.9);
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.15rem;
+  border: 1px solid var(--line-strong);
+  background: var(--ruby);
+  color: var(--white-bright);
+  text-decoration: none;
+  font: inherit;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.62rem 1rem;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.button-link:hover {
+  background: rgba(92, 12, 12, 0.9);
+}
+
+.button-link-secondary {
+  margin-top: 0;
+  background: rgba(92, 12, 12, 0.24);
 }
 
 footer {

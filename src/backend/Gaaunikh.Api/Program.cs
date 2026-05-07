@@ -1,6 +1,9 @@
+using System.Text.Json;
 using Gaaunikh.Api.Configuration;
 using Gaaunikh.Api.Data;
 using Gaaunikh.Api.Features.Orders;
+using Gaaunikh.Api.Features.Payments;
+using Gaaunikh.Api.Infrastructure.Payments;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +17,44 @@ var commerceConnectionString = builder.Configuration.GetConnectionString("Commer
 builder.Services.Configure<CommerceOptions>(builder.Configuration);
 builder.Services.AddDbContext<CommerceDbContext>(options => options.UseNpgsql(commerceConnectionString));
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<IRazorpayGateway, RazorpayGateway>();
 
 var app = builder.Build();
 var catalogProducts = CatalogSeedData.Products;
+var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<CommerceDbContext>();
+    var logger = scope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("DatabaseInitialization");
+
+    try
+    {
+        if (dbContext.Database.IsRelational())
+        {
+            var migrations = dbContext.Database.GetMigrations();
+            if (migrations.Any())
+            {
+                await dbContext.Database.MigrateAsync();
+            }
+            else
+            {
+                await dbContext.Database.EnsureCreatedAsync();
+            }
+        }
+        else
+        {
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Skipping startup database initialization.");
+    }
+}
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -78,6 +116,63 @@ app.MapPost("/api/orders/checkout", async (CheckoutRequest request, OrderService
     catch (CheckoutValidationException ex)
     {
         return Results.BadRequest(new { error = ex.Message });
+    }
+});
+
+app.MapPost("/api/payments/create-payment", async (CreatePaymentRequest request, PaymentService paymentService, CancellationToken cancellationToken) =>
+{
+    try
+    {
+        var response = await paymentService.CreateAsync(request, cancellationToken);
+        return Results.Ok(response);
+    }
+    catch (PaymentValidationException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+});
+
+app.MapPost("/api/payments/razorpay/callback", async (HttpRequest request, PaymentService paymentService, CancellationToken cancellationToken) =>
+{
+    var rawPayload = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
+    var callback = JsonSerializer.Deserialize<VerifiedPaymentCallbackRequest>(rawPayload, jsonOptions);
+
+    if (callback is null)
+    {
+        return Results.BadRequest(new { error = "invalid_callback_payload" });
+    }
+
+    try
+    {
+        var response = await paymentService.HandleCallbackAsync(callback, rawPayload, cancellationToken);
+        return response.Verified
+            ? Results.Ok(response)
+            : Results.BadRequest(new { error = "invalid_signature" });
+    }
+    catch (PaymentValidationException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+});
+
+app.MapPost("/api/payments/razorpay/webhook", async (HttpRequest request, PaymentService paymentService, CancellationToken cancellationToken) =>
+{
+    var rawPayload = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken);
+
+    try
+    {
+        var response = await paymentService.HandleWebhookAsync(
+            rawPayload,
+            request.Headers["X-Razorpay-Signature"],
+            cancellationToken);
+
+        return response.Verified
+            ? Results.Ok(response)
+            : Results.BadRequest(new { error = "invalid_signature" });
+    }
+    catch (JsonException)
+    {
+        return Results.BadRequest(new { error = "invalid_webhook_payload" });
     }
 });
 

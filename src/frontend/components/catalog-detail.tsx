@@ -53,6 +53,8 @@ export function CatalogDetail({ slug, loadProduct = fetchCatalogProduct }: Catal
     );
   }
 
+  const hasCartItems = (cart?.summary.totalQuantity ?? 0) > 0;
+
   return (
     <section className="catalog-detail">
       <p className="product-category">{product.category}</p>
@@ -82,6 +84,11 @@ export function CatalogDetail({ slug, loadProduct = fetchCatalogProduct }: Catal
           </div>
         ))}
       </div>
+      {hasCartItems ? (
+        <Link className="button-link button-link-secondary" href="/cart/">
+          Go to Cart
+        </Link>
+      ) : null}
       <Link className="product-link" href="/shop">
         Back to Shop
       </Link>
