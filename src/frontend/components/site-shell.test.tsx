@@ -41,6 +41,21 @@ describe("SiteShell", () => {
     expect(screen.getByRole("link", { name: "Contact" })).toBeInTheDocument();
   });
 
+  it("renders the brand logo and home hero treatment when enabled", () => {
+    render(
+      <SiteShell
+        heading="Pure Spice Craft From Gaaunikh Kitchens"
+        description="Freshly ground masalas..."
+        actionText="Discover the Brand"
+        showHeroImage
+      />
+    );
+
+    expect(screen.getByAltText("Gaaunikh Groups logo")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Gaaunikh Masala" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1 }).closest("section")).toHaveClass("intro-card-hero");
+  });
+
   it("shows action and updated footer signature", () => {
     render(
       <SiteShell

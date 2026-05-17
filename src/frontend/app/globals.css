@@ -53,12 +53,22 @@ a {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
   text-decoration: none;
   color: var(--white-bright);
   font-family: "Cormorant Garamond", serif;
   font-size: clamp(1.35rem, 2.8vw, 1.8rem);
   font-weight: 600;
   letter-spacing: 0.06em;
+}
+
+.brand-logo {
+  display: block;
+  width: clamp(3rem, 6vw, 4rem);
+  height: auto;
+  flex-shrink: 0;
 }
 
 nav {
@@ -123,6 +133,23 @@ nav {
   padding: clamp(1rem, 3vw, 1.8rem);
   border: 1px solid var(--line);
   background: var(--panel);
+}
+
+.intro-card-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(6, 6, 6, 0.18), rgba(6, 6, 6, 0.74)),
+    linear-gradient(135deg, rgba(92, 12, 12, 0.78), rgba(6, 6, 6, 0.52)),
+    url("/brand/hero-home.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 28rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .eyebrow {
@@ -412,6 +439,10 @@ select:focus {
   .topbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .brand {
+    width: 100%;
   }
 
   nav {
