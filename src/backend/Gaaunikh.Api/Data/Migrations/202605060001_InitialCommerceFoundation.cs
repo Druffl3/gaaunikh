@@ -1,10 +1,13 @@
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Gaaunikh.Api.Data.Migrations;
 
+[DbContext(typeof(CommerceDbContext))]
+[Migration("202605060001_InitialCommerceFoundation")]
 public partial class InitialCommerceFoundation : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
