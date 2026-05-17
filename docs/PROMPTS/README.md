@@ -22,6 +22,11 @@ Source documents:
 5. `05-notifications-resend-twilio.md`
 6. `06-admin-operations.md`
 7. `07-runtime-hardening-and-smoke.md`
+8. `08-admin-auth-inventory-security.md`
+
+## Additional security slice
+
+`08-admin-auth-inventory-security.md` is a focused follow-up prompt for protecting the admin inventory surface. Run it after `03-inventory-admin.md`. If `06-admin-operations.md` has not been started yet, run this security slice before broadening admin operations further.
 
 ## Intent
 
