@@ -9,16 +9,20 @@ type SiteShellProps = {
   description: string;
   actionText: string;
   children?: ReactNode;
+  showHeroImage?: boolean;
 };
 
-export function SiteShell({ heading, description, actionText, children }: SiteShellProps) {
+export function SiteShell({ heading, description, actionText, children, showHeroImage = false }: SiteShellProps) {
   const cart = useOptionalCart();
   const cartQuantity = cart?.summary.totalQuantity ?? 0;
 
   return (
     <div className="app-shell">
       <header className="topbar">
-        <Link className="brand" href="/">Gaaunikh Masala</Link>
+        <Link aria-label="Gaaunikh Masala" className="brand" href="/">
+          <img className="brand-logo" src="/brand/logo_w.png" alt="Gaaunikh Groups logo" />
+          <span>Gaaunikh Masala</span>
+        </Link>
         <nav aria-label="Primary">
           <Link className="nav-link" href="/">
             Home
@@ -44,7 +48,7 @@ export function SiteShell({ heading, description, actionText, children }: SiteSh
       </header>
 
       <main className="page">
-        <section className="intro-card">
+        <section className={`intro-card${showHeroImage ? " intro-card-hero" : ""}`}>
           <p className="eyebrow">Gaaunikh Masala</p>
           <h1>{heading}</h1>
           <p>{description}</p>

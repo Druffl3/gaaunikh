@@ -7,6 +7,7 @@ export default function HomePage() {
       heading={routeContent.home.heading}
       description={routeContent.home.description}
       actionText={routeContent.home.actionText}
+      showHeroImage
     />
   );
 }
