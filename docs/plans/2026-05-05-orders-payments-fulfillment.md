@@ -185,7 +185,9 @@ git commit -m "feat(payments): add Razorpay order creation and verified payment 
 Add tests that assert:
 - inventory movements compute on-hand/reserved/available correctly
 - payment-confirmed orders trigger stock reservation policy consistently
-- admin inventory page renders quantities, low-stock state, and adjustment controls
+- inventory items can persist and return an assigned image reference for admin and catalog views
+- whole and mix spice inventory supports only `250g`, `500g`, and `1kg` unit labels
+- admin inventory page renders quantities, low-stock state, image assignment, supported unit options, and adjustment controls
 
 **Step 2: Run test to verify it fails**
 
@@ -198,10 +200,11 @@ Expected: FAIL because inventory domain and admin page do not exist.
 **Step 3: Write minimal implementation**
 
 Implement:
-- inventory entities and movement rules
+- inventory entities and movement rules, including assigned image metadata
 - stock adjustment endpoint
 - stock summary endpoint
-- admin inventory page with manual adjustment flow
+- fixed unit options for whole and mix spices: `250g`, `500g`, and `1kg`
+- admin inventory page with manual adjustment flow and image assignment
 
 **Step 4: Run test to verify it passes**
 

@@ -173,6 +173,8 @@ Inventory rules:
 - track stock per variant SKU
 - preserve an audit trail through movement rows rather than overwriting counts blindly
 - expose `OnHand`, `Reserved`, `Available`, and `ReorderThreshold`
+- allow each inventory item to carry an assigned image reference for admin and catalog display
+- for whole and mix spices, support only `250g`, `500g`, and `1kg` unit labels
 - support manual adjustments with reason codes such as:
   - `Restock`
   - `Damage`
@@ -255,6 +257,8 @@ Admin capabilities required:
 Inventory management page requirements:
 - filterable list by product/category/SKU
 - columns for `OnHand`, `Reserved`, `Available`, `ReorderThreshold`
+- image thumbnail or assigned image field per inventory item
+- inventory creation/edit flow limited to `250g`, `500g`, and `1kg` units for whole and mix spices
 - adjustment form with reason and note
 - recent stock movement history
 - low-stock highlighting

@@ -17,12 +17,14 @@ Requirements:
 - Use tests first and run the planned verification commands before completion.
 - Create a commit for Session 3 only after tests pass.
 - Remove the hardcoded Spice items
+- Allow inventory items to have an assigned image for admin and catalog display
+- For whole and mix spices, support only `250g`, `500g`, and `1kg` units across inventory creation and catalog usage
 
 Deliverables expected from this session:
 - inventory ledger domain
 - stock summary and adjustment endpoints
 - reservation logic tied to paid-order flow
-- admin inventory UI with low-stock visibility and adjustment controls
+- admin inventory UI with low-stock visibility, image assignment, and adjustment controls
 
 When you finish, summarize:
 - what changed

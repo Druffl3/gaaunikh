@@ -18,3 +18,4 @@
 - The application uses Docker Compose for local supporting services.
 - PostgreSQL is exposed on host port `5433`.
 - Adminer is exposed on host port `8081`.
+- The application knowledge store lives under `docs/knowledge-store`; add durable application context there.
